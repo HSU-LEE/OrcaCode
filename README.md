@@ -1,5 +1,5 @@
 <p align="center">
-  <img src="public/icon.png" alt="Orca Code" width="96" />
+  <img src="public/icon2.png" alt="Orca Code" width="96" />
 </p>
 
 <h1 align="center">Orca Code</h1>
