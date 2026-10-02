@@ -486,7 +486,7 @@ function MenuButton({ children, onClick, disabled }: { children: ReactNode; onCl
 
 function Chip({ children, onClick }: { children: ReactNode; onClick: () => void }) {
   return (
-    <button className="rounded-full px-2 py-1 text-xs text-muted hover:bg-elev hover:text-text" onClick={onClick}>
+    <button className="max-w-full truncate rounded-full px-2 py-1 text-xs text-muted hover:bg-elev hover:text-text" onClick={onClick}>
       {children}
     </button>
   );

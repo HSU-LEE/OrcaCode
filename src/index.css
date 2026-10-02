@@ -47,11 +47,16 @@ button {
 
 button:focus-visible,
 a:focus-visible,
-input:focus-visible,
-textarea:focus-visible,
 select:focus-visible {
   outline: 1px solid #6a6a6a;
   outline-offset: 2px;
+}
+
+textarea:focus,
+textarea:focus-visible,
+input:focus,
+input:focus-visible {
+  outline: none;
 }
 
 input[type="checkbox"] {

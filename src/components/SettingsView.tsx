@@ -6,6 +6,7 @@ import { useUi } from "../stores/ui";
 import { useSettings } from "../stores/settings";
 import type { Settings } from "../types";
 import { ModelLibrary } from "./ModelLibrary";
+import { UpdateSection } from "./UpdateSection";
 
 const sections = ["일반", "모델", "권한", "컴퓨터", "단축키"] as const;
 
@@ -64,7 +65,7 @@ export function SettingsView() {
               <h1 className="text-xl font-medium">일반</h1>
               <p className="text-sm text-muted">대화와 설정은 이 기기에만 저장됩니다. 클라우드 계정은 사용하지 않습니다.</p>
               <p className="text-sm text-muted">Ollama는 앱을 열 때 켜지고, 이 앱이 켠 서버는 창을 닫으면 함께 종료됩니다. 기본 모델은 qwen2.5-coder:7b입니다.</p>
-              <p className="text-xs text-muted">Orca Code 0.1.0</p>
+              <UpdateSection />
               <Field label="성격">
                 <select className="field" value={personality} onChange={(event) => patchUi({ personality: event.target.value as "pragmatic" | "friendly" })}>
                   <option value="pragmatic">Pragmatic</option>

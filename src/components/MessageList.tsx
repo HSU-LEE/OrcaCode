@@ -4,6 +4,7 @@ import { useSession } from "../stores/session";
 import { useUi } from "../stores/ui";
 import type { ChatEntry, FileChange } from "../types";
 import { DiffView } from "./DiffView";
+import { MarkdownMessage } from "./MarkdownMessage";
 
 export function MessageList() {
   const messages = useSession((state) => state.messages);
@@ -35,7 +36,9 @@ export function MessageList() {
             <Entry entry={entry} query={query} changes={fileChanges} active={hits[findIndex] === entry.id} />
           </div>
         ))}
-        {agentState === "thinking" ? <div className="text-xs text-muted">작업 중</div> : null}
+        {agentState === "thinking" && !messages.some((entry) => entry.kind === "assistant" && entry.streaming) ? (
+          <div className="text-xs text-muted">작업 중</div>
+        ) : null}
         <div ref={bottom} />
       </div>
     </div>
@@ -74,8 +77,8 @@ function Entry({
   }
   if (entry.kind === "assistant") {
     return (
-      <div className={`whitespace-pre-wrap text-[15px] leading-7 ${ring}`}>
-        <Highlight text={entry.content} query={query} />
+      <div className={ring}>
+        <MarkdownMessage text={entry.content} query={query} />
         {entry.streaming ? <span className="ml-1 inline-block h-3 w-1.5 bg-white align-middle" /> : null}
       </div>
     );
@@ -93,10 +96,10 @@ function ToolRow({ entry, query, changes }: { entry: Extract<ChatEntry, { kind: 
   const tone = entry.status === "ok" ? "text-ok" : entry.status === "running" ? "text-text" : entry.status === "denied" ? "text-warn" : "text-danger";
   return (
     <div className="text-sm">
-      <button className="flex w-full items-center gap-2 py-1 text-left text-muted hover:text-text" onClick={() => setOpen((value) => !value)}>
+      <button className="flex w-full min-w-0 items-center gap-2 py-1 text-left text-muted hover:text-text" onClick={() => setOpen((value) => !value)}>
         <span className="text-[10px]">{open ? "▾" : "▸"}</span>
         <span>{toolLabel(entry.name)}</span>
-        <span className="truncate">{path}</span>
+        <span className="min-w-0 flex-1 truncate">{path}</span>
         <span className={`ml-auto text-xs ${tone}`}>{statusLabel(entry.status)}</span>
       </button>
       {open ? (

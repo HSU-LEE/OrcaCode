@@ -23,6 +23,8 @@ pub fn run() {
     let _ = log_path;
     tauri::Builder::default()
         .plugin(tauri_plugin_dialog::init())
+        .plugin(tauri_plugin_process::init())
+        .plugin(tauri_plugin_updater::Builder::new().build())
         .setup(|app| {
             use tauri::Manager;
             let directory = app.path().app_data_dir()?;
@@ -84,7 +86,7 @@ pub fn run() {
         .expect("Orca Code failed to start")
         .run(|app, event| {
             use tauri::Manager;
-            if matches!(event, tauri::RunEvent::Exit) {
+            if matches!(event, tauri::RunEvent::ExitRequested { .. } | tauri::RunEvent::Exit) {
                 if let Some(state) = app.try_state::<AppState>() {
                     state.host.shutdown();
                 }

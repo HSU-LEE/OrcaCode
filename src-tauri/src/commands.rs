@@ -501,7 +501,7 @@ fn launch_ollama(state: &AppState) -> AppResult<()> {
             .status()
             .map_err(|error| AppError::message(error.to_string()))?;
         if status.success() {
-            state.host.mark_started();
+            state.host.mark_launched_app();
             return Ok(());
         }
     }

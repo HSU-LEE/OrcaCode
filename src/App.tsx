@@ -16,6 +16,7 @@ import { SkillsView } from "./components/SkillsView";
 import { IconClose, IconSidebar } from "./components/icons";
 import { Logo } from "./components/Logo";
 import { api, explain } from "./lib/api";
+import { findUpdate } from "./lib/updates";
 import { buildInstructions, cadenceMs } from "./lib/catalog";
 import { selectWorkspace } from "./lib/workspace";
 import { allSkills, useUi } from "./stores/ui";
@@ -99,6 +100,25 @@ export function App() {
     });
     return () => unlisten?.();
   }, [applyEvent, setBanner, setConversations, setOllama, setSettings, setWorkspace, setWorkspaces]);
+
+  useEffect(() => {
+    if (boot !== "ready") return;
+    let cancelled = false;
+    void findUpdate()
+      .then(async (update) => {
+        if (!update || cancelled) {
+          await update?.close();
+          return;
+        }
+        const version = update.version;
+        await update.close();
+        if (!cancelled) setNotice(`버전 ${version} 업데이트가 있습니다. 설정에서 설치할 수 있습니다.`);
+      })
+      .catch(() => undefined);
+    return () => {
+      cancelled = true;
+    };
+  }, [boot, setNotice]);
 
   useEffect(() => {
     function onKey(event: KeyboardEvent) {

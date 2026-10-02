@@ -4,6 +4,7 @@ use std::sync::Mutex;
 
 pub struct OllamaHost {
     started_by_app: AtomicBool,
+    launched_app: AtomicBool,
     child: Mutex<Option<Child>>,
 }
 
@@ -11,12 +12,18 @@ impl OllamaHost {
     pub fn new() -> Self {
         Self {
             started_by_app: AtomicBool::new(false),
+            launched_app: AtomicBool::new(false),
             child: Mutex::new(None),
         }
     }
 
     pub fn mark_started(&self) {
         self.started_by_app.store(true, Ordering::SeqCst);
+    }
+
+    pub fn mark_launched_app(&self) {
+        self.launched_app.store(true, Ordering::SeqCst);
+        self.mark_started();
     }
 
     pub fn store_child(&self, child: Child) {
@@ -39,8 +46,12 @@ impl OllamaHost {
                 let _ = child.wait();
             }
         }
+        if !self.launched_app.swap(false, Ordering::SeqCst) {
+            return;
+        }
         let _ = Command::new("osascript")
             .args(["-e", "tell application \"Ollama\" to quit"])
             .status();
+        let _ = Command::new("killall").arg("Ollama").status();
     }
 }

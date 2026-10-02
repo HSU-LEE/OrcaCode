@@ -6,3 +6,5 @@ release
 src-tauri/gen
 *.log
 .orca
+.updater
+latest.json

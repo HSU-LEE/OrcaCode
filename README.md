@@ -34,11 +34,23 @@ The first launch prepares the local runtime:
 
 A server started by the app stops when you close the window. An Ollama process that was already running is left alone.
 
-To build the macOS app and disk image:
+To build the macOS app and disk image, sign the update package with the key in `.updater/` (that folder stays out of git):
 
 ```shell
+export TAURI_SIGNING_PRIVATE_KEY="$(cat .updater/orca-code.key)"
+export TAURI_SIGNING_PRIVATE_KEY_PASSWORD=""
 npm run tauri build
 ```
+
+---
+
+## Updates
+
+The installed app checks GitHub Releases and can install a newer version from Settings.
+
+Publish a release by bumping `version` in `src-tauri/tauri.conf.json` and `package.json`, then pushing a matching tag such as `v0.1.1`. The release workflow builds the app, signs the update, and uploads the disk image plus `latest.json`.
+
+Add the contents of `.updater/orca-code.key` as the GitHub Actions secret `TAURI_SIGNING_PRIVATE_KEY` before the first tagged release. The key password is empty.
 
 ---
 

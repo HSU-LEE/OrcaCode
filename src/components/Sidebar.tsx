@@ -42,7 +42,10 @@ export function Sidebar() {
   }, [archived, conversations, query]);
 
   const pinnedItems = visible.filter((conversation) => pinned.includes(conversation.id));
-  const recent = visible.filter((conversation) => !pinned.includes(conversation.id)).slice(0, 30);
+  const projectPaths = new Set(workspaces.map((workspace) => normalizePath(workspace.path)));
+  const recent = visible
+    .filter((conversation) => !pinned.includes(conversation.id) && !projectPaths.has(normalizePath(conversation.workspacePath ?? "")))
+    .slice(0, 30);
 
   async function loadConversation(id: string) {
     if (running) return;
@@ -128,14 +131,14 @@ export function Sidebar() {
         <label className="mt-1 flex items-center gap-2 rounded-lg px-2 py-1.5 text-muted hover:bg-elev">
           <IconSearch />
           <input
-            className="w-full bg-transparent text-[13px] text-text outline-none placeholder:text-muted"
+            className="min-w-0 flex-1 bg-transparent text-[13px] text-text outline-none placeholder:text-muted"
             placeholder="채팅 검색"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
       </div>
-      <div className="scroll-thin mt-3 min-h-0 flex-1 overflow-auto px-2">
+      <div className="scroll-thin mt-3 min-h-0 flex-1 overflow-x-hidden overflow-y-auto px-2">
         {pinnedItems.length > 0 ? (
           <Section title="고정">
             {pinnedItems.map((conversation) => (
@@ -152,6 +155,7 @@ export function Sidebar() {
                   setTitle(conversation.title);
                 }}
                 onCommit={() => void rename(conversation.id)}
+                onCancel={() => setEditing(null)}
                 onPin={() => togglePin(conversation.id)}
                 onArchive={() => toggleArchive(conversation.id)}
                 onDelete={() => void remove(conversation.id)}
@@ -166,11 +170,13 @@ export function Sidebar() {
           </button>
           {workspaces.map((workspace) => {
             const expanded = openProjects[workspace.path] ?? workspace.path === workspacePath;
-            const threads = visible.filter((conversation) => conversation.workspacePath === workspace.path && !pinned.includes(conversation.id));
+            const threads = visible.filter(
+              (conversation) => normalizePath(conversation.workspacePath ?? "") === normalizePath(workspace.path) && !pinned.includes(conversation.id),
+            );
             return (
               <div key={workspace.id}>
                 <button
-                  className={`flex w-full items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm ${
+                  className={`flex w-full min-w-0 items-center gap-2 rounded-md px-2 py-1.5 text-left text-sm ${
                     workspace.path === workspacePath ? "bg-elev text-text" : "text-muted hover:bg-elev hover:text-text"
                   }`}
                   title={workspace.path}
@@ -179,12 +185,12 @@ export function Sidebar() {
                     void selectWorkspace(workspace.path);
                   }}
                 >
-                  <span className="text-[10px]">{expanded ? "▾" : "▸"}</span>
-                  <span className="truncate">{workspace.name}</span>
+                  <span className="shrink-0 text-[10px]">{expanded ? "▾" : "▸"}</span>
+                  <span className="min-w-0 flex-1 truncate">{workspace.name}</span>
                 </button>
                 {expanded
                   ? threads.map((conversation) => (
-                      <div key={conversation.id} className="pl-4">
+                      <div key={conversation.id} className="min-w-0 pl-4">
                         <ThreadRow
                           title={conversation.title}
                           active={conversation.id === conversationId}
@@ -197,6 +203,7 @@ export function Sidebar() {
                             setTitle(conversation.title);
                           }}
                           onCommit={() => void rename(conversation.id)}
+                          onCancel={() => setEditing(null)}
                           onPin={() => togglePin(conversation.id)}
                           onArchive={() => toggleArchive(conversation.id)}
                           onDelete={() => void remove(conversation.id)}
@@ -208,6 +215,7 @@ export function Sidebar() {
             );
           })}
         </Section>
+        {recent.length > 0 || visible.length === 0 ? (
         <Section title="최근">
           {recent.length === 0 ? <div className="px-2 py-1 text-xs text-muted">채팅이 없습니다.</div> : null}
           {recent.map((conversation) => (
@@ -224,12 +232,14 @@ export function Sidebar() {
                 setTitle(conversation.title);
               }}
               onCommit={() => void rename(conversation.id)}
+              onCancel={() => setEditing(null)}
               onPin={() => togglePin(conversation.id)}
               onArchive={() => toggleArchive(conversation.id)}
               onDelete={() => void remove(conversation.id)}
             />
           ))}
         </Section>
+        ) : null}
       </div>
       <div className="border-t border-line p-2">
         <NavButton active={view === "automations"} onClick={() => setView(view === "automations" ? "chat" : "automations")}>
@@ -250,6 +260,11 @@ export function Sidebar() {
       </div>
     </aside>
   );
+}
+
+function normalizePath(path: string): string {
+  if (path.length > 1) return path.replace(/\/+$/, "");
+  return path;
 }
 
 function Section({ title, children }: { title: string; children: ReactNode }) {
@@ -279,6 +294,7 @@ function ThreadRow({
   onOpen,
   onRename,
   onCommit,
+  onCancel,
   onPin,
   onArchive,
   onDelete,
@@ -292,6 +308,7 @@ function ThreadRow({
   onOpen: () => void;
   onRename: () => void;
   onCommit: () => void;
+  onCancel: () => void;
   onPin: () => void;
   onArchive: () => void;
   onDelete: () => void;
@@ -306,14 +323,17 @@ function ThreadRow({
         onBlur={onCommit}
         onKeyDown={(event) => {
           if (event.key === "Enter") onCommit();
-          if (event.key === "Escape") onCommit();
+          if (event.key === "Escape") {
+            event.preventDefault();
+            onCancel();
+          }
         }}
       />
     );
   }
   return (
-    <div className={`group relative flex items-center rounded-md ${active ? "bg-elev" : "hover:bg-elev"}`}>
-      <button className="min-w-0 flex-1 truncate px-2 py-1.5 pr-2 text-left text-[13px] group-hover:pr-24" onClick={onOpen} onDoubleClick={onRename}>
+    <div className={`group relative min-w-0 rounded-md ${active ? "bg-elev" : "hover:bg-elev"}`}>
+      <button className="block w-full truncate px-2 py-1.5 text-left text-[13px] group-hover:pr-24" title={title} onClick={onOpen} onDoubleClick={onRename}>
         {title}
       </button>
       <div className="absolute right-1 hidden items-center group-hover:flex">

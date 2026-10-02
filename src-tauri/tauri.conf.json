@@ -25,8 +25,17 @@
       "csp": null
     }
   },
+  "plugins": {
+    "updater": {
+      "pubkey": "dW50cnVzdGVkIGNvbW1lbnQ6IG1pbmlzaWduIHB1YmxpYyBrZXk6IDc1MDI0QTg4QjczNjEyM0YKUldRL0VqYTNpRW9DZFdxT3doYTRnRkM1a2I5b28zdGFSSFVBaXdmQ3V3bkpqSm10T1dFUFk0T04K",
+      "endpoints": [
+        "https://github.com/HSU-LEE/OrcaCode/releases/latest/download/latest.json"
+      ]
+    }
+  },
   "bundle": {
     "active": true,
+    "createUpdaterArtifacts": true,
     "targets": "all",
     "icon": [
       "icons/32x32.png",
