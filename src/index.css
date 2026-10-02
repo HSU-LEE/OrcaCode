@@ -1,0 +1,100 @@
+@import "tailwindcss";
+
+@theme {
+  --font-sans: ui-sans-serif, system-ui, -apple-system, "Segoe UI", sans-serif;
+  --font-mono: "SF Mono", ui-monospace, monospace;
+  --color-ink: #000000;
+  --color-panel: #000000;
+  --color-panel-2: #1c1c1c;
+  --color-elev: #242424;
+  --color-line: #2a2a2a;
+  --color-text: #f4f4f4;
+  --color-muted: #8d8d8d;
+  --color-lime: #ffffff;
+  --color-danger: #f07167;
+  --color-ok: #7dce7a;
+  --color-warn: #e3b341;
+}
+
+html,
+body,
+#root {
+  height: 100%;
+}
+
+body {
+  margin: 0;
+  background: var(--color-ink);
+  color: var(--color-text);
+  font-family: var(--font-sans);
+}
+
+button,
+input,
+textarea,
+select {
+  font: inherit;
+}
+
+button {
+  cursor: pointer;
+}
+
+::selection {
+  background: #3a3a3a;
+  color: #fff;
+}
+
+button:focus-visible,
+a:focus-visible,
+input:focus-visible,
+textarea:focus-visible,
+select:focus-visible {
+  outline: 1px solid #6a6a6a;
+  outline-offset: 2px;
+}
+
+input[type="checkbox"] {
+  accent-color: #fff;
+}
+
+.scroll-thin {
+  scrollbar-width: thin;
+  scrollbar-color: #3a3a3a transparent;
+}
+
+.diff-add {
+  background: rgba(125, 206, 122, 0.14);
+  color: #b7ebc2;
+}
+
+.diff-del {
+  background: rgba(240, 113, 103, 0.14);
+  color: #ffc7c2;
+}
+
+.field {
+  width: 100%;
+  border-radius: 10px;
+  border: 1px solid #2a2a2a;
+  background: #141414;
+  padding: 8px 10px;
+  outline: none;
+}
+
+.field:focus {
+  border-color: #6a6a6a;
+}
+
+.popover {
+  border-radius: 12px;
+  border: 1px solid #2e2e2e;
+  background: #1a1a1a;
+  box-shadow: 0 16px 40px rgba(0, 0, 0, 0.55);
+}
+
+.find-hit {
+  background: #e3b341;
+  color: #1a1406;
+  border-radius: 2px;
+}

@@ -1,0 +1,7 @@
+{
+  "$schema": "../gen/schemas/desktop-schema.json",
+  "identifier": "default",
+  "description": "Orca Code default window permissions",
+  "windows": ["main"],
+  "permissions": ["core:default", "dialog:default"]
+}
